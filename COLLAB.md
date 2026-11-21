@@ -76,60 +76,47 @@ push. Take this into account when assigning tasks in Round 3.
 
 ---
 
-## 3. Teams and subagent limits
+## 3. Teams and subagent caps
 
-Each AI is an **orchestrator** with a small, fixed team. **These limits are hard ceilings.** Only the PM can change
-them, in BOARD → *PM overrides*.
+Each AI is an **orchestrator** with a small team. This file sets only the **cap**: how many subagents of which model.
+**What** each subagent does is decided by the two orchestrators, per project, in the debate (sections 6–8).
+**The caps are hard ceilings.** Only the PM can change them, in BOARD → *PM overrides*.
 
 | Team | Orchestrator | Subagents allowed (max at any time) |
 |---|---|---|
-| **Claude** | **Claude Opus**, the orchestrator | **1 × Sonnet** (`Claude-Builder`) and **1 × Haiku** (`Claude-Scout`) |
-| **Gemini** | **Gemini Neon**, the orchestrator | **1 × Hydrogen** (`Gemini-Tester`) |
+| **Claude** | **Opus** | **1 × Sonnet** and **1 × Haiku** |
+| **Gemini** | **Neon** | **1 × Hydrogen** |
 
-### Rules for every subagent
+Using fewer subagents, or none, is always allowed.
+
+### How subagent roles get decided
+1. **Round 1:** each orchestrator proposes roles for **its own** subagents, based on this project.
+2. **Round 2:** each critiques the other's proposal (gaps, overlap, a role too vague or too broad).
+3. **Round 3:** PLAN.md → *Team* gets one **role card** per subagent (template in section 12). Each card covers:
+   name, model, purpose, what it is used for, which files it may edit and read, what it must and must not do,
+   what it reports back, and which tasks it covers.
+   **A subagent with no complete, agreed role card may not be started.**
+4. **Changing a role later:** the orchestrator posts a `DECISION` message, the other orchestrator replies `AGREE`
+   (or the PM decides), and the role card in PLAN and the Team table in BOARD are updated **before** the new role is used.
+
+### Rules for every subagent, whatever its role
 1. **Only the orchestrator may start a subagent.** Subagents never start other subagents, and never run two copies of themselves.
-2. **One job per spawn.** Each spawn gets one task, described with the *Subagent brief* template (section 12). No
-   open-ended or "help out" spawns.
+2. **One job per spawn.** Each spawn gets one task, described with the *Subagent brief* template (section 12) and
+   limited to what its role card allows. No open-ended or "help out" spawns.
 3. **No voice in the debate.** Subagents never write or influence Round 1–3 content, and never read the other AI's
-   debate files. (A Scout may collect facts about code that existed before Phase 0, for its own orchestrator.)
+   debate files. (A subagent may collect facts about code that existed before Phase 0, for its own orchestrator.)
 4. **No shared files.** Subagents never edit `COLLAB.md`, `.colab/BOARD.md`, `.colab/MESSAGES.md`, `.colab/PLAN.md` or
    `.colab/debate/*`, and never talk to the other AI team. All cross-team communication goes orchestrator to orchestrator.
-5. **They stay inside their own team's claim.** A subagent may only edit files its orchestrator has claimed for that task
-   *and* listed in the brief. They never take locks, merge or push to the default branch.
+5. **They stay inside their own team's claim.** A subagent may only edit files its orchestrator has claimed for that task,
+   *and* that its role card and brief allow. They never take locks, merge or push to the default branch.
 6. **The orchestrator owns the result.** It checks the subagent's work before any HANDOFF, and credits it in the
-   message, e.g. "built by Claude-Builder (Sonnet), checked by Opus".
-7. **If a model isn't available** in your app, use the closest smaller model with the same role, and say so in
-   MESSAGES. If your app can't run subagents at all (e.g. the Gemini app in Setup B), work without them.
+   message, e.g. "done by <subagent name> (Sonnet), checked by Opus".
+7. **If a model isn't available** in your app, use the closest smaller model with the same role card, and say so in
+   MESSAGES. If your app can't run subagents at all (e.g. the Gemini app in Setup B), work without them, and plan for that
+   in Round 3.
 
-### Subagent roles (fixed, unless the PM changes them in BOARD → Team)
-
-**Claude-Builder (Sonnet): implements well-defined pieces**
-- *Use for:* coding one task, or one clearly bounded part of a task, that is already fully specified in PLAN.md
-  and has an exact file list.
-- *Must:* stay inside the listed files, follow PLAN decisions, add or adjust tests for its change, run the tests and report the real
-  result.
-- *Must not:* change architecture or public interfaces not named in the brief, add dependencies, touch shared
-  files, or rewrite code beyond the brief's scope.
-- *Returns:* the files changed, a 3–6 line summary, the test command and result, and anything it is unsure about.
-
-**Claude-Scout (Haiku): read-only helper**
-- *Use for:* searching the codebase, collecting facts and references, running tests, linters and builds and summarizing the
-  output, checking that the files touched match the claims in PLAN/BOARD, and drafting plain-English BOARD text
-  for Opus to approve.
-- *Must:* only read and run commands. It never edits a tracked file.
-- *Must not:* make decisions, propose architecture, or edit anything.
-- *Returns:* facts with file paths and line numbers, the exact command output (trimmed), and any mismatches it found.
-
-**Gemini-Tester (Hydrogen): writes tests and checks results**
-- *Use for:* turning a task's "Done when" line into tests before it's built (required for Thorough and Maximum
-  tasks), running the test suite, and checking a task against its acceptance criteria during review.
-- *Must:* only edit test files that Gemini has claimed, test behaviour rather than implementation details, and report
-  the real pass/fail counts.
-- *Must not:* edit product code, weaken or delete existing tests without Neon's say-so, or judge code style.
-- *Returns:* the test files written, what each test proves, the command and result, and any criteria it couldn't test.
-
-**What stays with the orchestrators:** the debate, the plan, architecture, hard or cross-cutting code, reviews of the
-other team's work, every BOARD/MESSAGES/PLAN edit, and all decisions.
+**What always stays with the orchestrators:** the debate, the plan, every BOARD/MESSAGES/PLAN edit, reviews of the other
+team's work, and all decisions.
 
 ---
 
@@ -188,18 +175,19 @@ The point is two independent opinions. Neither AI may anchor on the other's idea
 - Now read the other AI's Round 1. Write `.colab/debate/2-<you>.md` from the template, **max 400 words**.
 - Be adversarial and useful. Say which of their ideas beat yours, what is bloat, what is risky, and where you disagree.
 - End with your **proposed split of work**, i.e. which areas or files your team wants to own and why. Claim areas where
-  your team is stronger, not just the fun parts, and say which parts you would hand to your subagents.
+  your team is stronger, not just the fun parts. Also critique the other team's proposed subagent roles.
 - Order doesn't matter. When both Round 2 files exist, Claude sets the phase to *Round 3*.
 
 ## 8. Round 3: convergence → PLAN.md
 
-1. **The Lead drafts** `.colab/PLAN.md` from the template (Lead = Claude by default; see BOARD → Team). Combine the
-   best of both Round 1 files and settle the Round 2 disagreements. Every task gets an owner team, **claimed
+1. **Claude drafts** `.colab/PLAN.md` from the template, because it has held the repo since Phase 0 (unless Round 2
+   agreed that Gemini drafts). Combine the best of both Round 1 files and settle the Round 2 disagreements. Every task gets an owner team, **claimed
    files/folders**, a reviewer (the other team), an effort level, a *done when* line that can be tested, and, if a
-   subagent will do it, *which* subagent.
+   subagent will do it, *which* subagent. PLAN → *Team* gets the orchestrators' roles for this project and one
+   complete role card per subagent (section 3).
 2. **The other AI reviews** and writes `.colab/debate/3-review.md`: either `VERDICT: AGREE`, or
    `VERDICT: CHANGES` followed by up to 5 numbered objections, each with a concrete fix.
-3. The Lead updates the plan. **There are at most 2 review cycles.** Anything still disagreed goes into BOARD →
+3. The drafter updates the plan. **There are at most 2 review cycles.** Anything still disagreed goes into BOARD →
    *Needs PM* as two short positions (max 3 lines each) plus a recommendation.
 4. Phase becomes *Waiting for PM approval*. **Nobody writes product code until the PM approves the plan.** The PM approves
    by telling either AI "plan approved" (or by writing it in BOARD). The AI that hears it records it in BOARD and
@@ -230,8 +218,7 @@ The point is two independent opinions. Neither AI may anchor on the other's idea
   message, so the PM can see what was delegated.
 - **Tests are the judge.** If you can run the tests, run them and paste the real result (pass/fail counts) into your
   message. Never say tests passed unless you ran them. If you can't run them, say "not run".
-- For *Thorough* and *Maximum* tasks, the tests are written **first**, preferably by the other team (Gemini-Tester
-  for Claude's tasks), and the builder doesn't weaken them. If a test is wrong, post a `REQUEST` to its author.
+- For *Thorough* and *Maximum* tasks, the tests are written **first**, preferably by the other team, and the builder doesn't weaken them. If a test is wrong, post a `REQUEST` to its author.
 
 **Handing off:**
 - Done building → status `👀 review: <other team>`, and a `HANDOFF` message with the branch/PR, what changed,
@@ -250,7 +237,7 @@ Only orchestrators write messages. Append to `.colab/MESSAGES.md`, numbered in s
 
 ```
 ### M12 · Claude → Gemini · T3 · HANDOFF
-Built the signup form on claude/T3-signup (PR #4) – Claude-Builder (Sonnet), checked by Opus.
+Built the signup form on claude/T3-signup (PR #4) – done by Claude's Sonnet subagent, checked by Opus.
 Tests: 14 passed, 0 failed. Unsure about: password rules, please check against PLAN decision D2.
 ```
 
@@ -270,27 +257,27 @@ If nothing can move without the PM, write `NEXT → PM:` plus the question in pl
 
 The PM sets these in BOARD. Each task uses its own effort level, or the owner's default if it doesn't have one.
 
-| Effort | What it means | Debate | Tests | Review rounds | Subagents |
-|---|---|---|---|---|---|
-| **Quick** | Smallest change that works. No new dependencies. | Round 1 only, 200 words | if they already exist | 1 | Builder/Scout OK |
-| **Normal** | Sensible design, risks stated. | All 3 rounds | for new logic | 2 | OK for specified tasks |
-| **Thorough** | Edge cases, security, failure modes. | All 3 rounds | written first | 3 | Orchestrator reviews every subagent diff line by line |
-| **Maximum** | Exhaustive. Alternatives compared in writing. | All 3 rounds + PM approves each milestone | written first, by the other team | 4 | Scout and Tester only. The orchestrator writes the product code itself |
+| Effort | What it means | Debate | Tests | Review rounds |
+|---|---|---|---|---|
+| **Quick** | Smallest change that works. No new dependencies. | Round 1 only, 200 words | if they already exist | 1 |
+| **Normal** | Sensible design, risks stated. | All 3 rounds | for new logic | 2 |
+| **Thorough** | Edge cases, security, failure modes. | All 3 rounds | written first | 3 |
+| **Maximum** | Exhaustive. Alternatives compared in writing. | All 3 rounds + PM approves each milestone | written first, by the other team | 4 |
+
+At *Thorough* and *Maximum*, the orchestrator reviews every subagent change line by line before handing it off.
 
 Effort here means how carefully each team works, enforced by these rules. The model's own thinking setting is chosen
 by the human in each app.
 
-**Default roles** (the PM can change them in BOARD → Team, and agents must follow the current Team table):
-- **Claude Opus**: Lead orchestrator. Drafts the plan, keeps BOARD tidy, builds the hard parts.
-- **Gemini Neon**: Co-orchestrator. Challenges the plan, reviews, owns test strategy, builds.
-- Subagents: as in section 3.
-- Available roles: *Lead, Co-lead, Builder, Tester, Reviewer, Researcher, Designer, Docs*. The PM may reassign them to
-  orchestrators or subagents, but can't give a subagent a "never" item from section 3 without writing it in *PM overrides*.
+**Roles:** this file doesn't fix any roles, for orchestrators or subagents. The orchestrators agree them per project
+in Round 3 and write them in PLAN → *Team*, and BOARD → *Team* shows a plain-English summary. The PM can change any role
+there. Agents follow the current Team table, and an orchestrator that thinks a role change is a bad idea says so in
+`QUESTION-PM`.
 
 **Hard limits (all efforts):**
 - No more than 3 back-and-forth messages on one disagreement. Then go to *Needs PM*.
 - Don't redo or rewrite the other team's finished work without a `REQUEST` that they accept, or a PM decision.
-- Never go above the subagent limits in section 3.
+- Never go above the subagent caps in section 3, and never start a subagent without an agreed role card.
 - Never store API keys, passwords or tokens in the repo, and never ask the PM for them in a file.
 - Never automate, script or drive the other AI or its app. A human starts every session.
 
@@ -307,13 +294,14 @@ by the human in each app.
 - (nothing yet)
 
 ## Team
-| Member | Model | Roles | Default effort | Notes from PM |
+(Filled in after Round 3, using the role cards in PLAN.md. The PM can edit roles and effort here.)
+| Member | Model | Role on this project (plain English) | Default effort | Notes from PM |
 |---|---|---|---|---|
-| Claude (orchestrator) | Opus | Lead, Builder, Reviewer | Normal | |
-| Claude-Builder | Sonnet | Builder (specified tasks only) | – | |
-| Claude-Scout | Haiku | Read-only research, test runs, checks | – | |
-| Gemini (orchestrator) | Neon | Co-lead, Reviewer, Builder | Normal | |
-| Gemini-Tester | Hydrogen | Writes and runs tests | – | |
+| Claude (orchestrator) | Opus | (decided in Round 3) | Normal | |
+| Claude subagent | Sonnet | (decided in Round 3, or unused) | – | |
+| Claude subagent | Haiku | (decided in Round 3, or unused) | – | |
+| Gemini (orchestrator) | Neon | (decided in Round 3) | Normal | |
+| Gemini subagent | Hydrogen | (decided in Round 3, or unused) | – | |
 
 ## PM overrides
 - (rules the PM changed for this project)
@@ -345,7 +333,8 @@ Append only. Newest at the bottom. Format: `### M<n> · <from> → <to> · <task
 ## AAA upgrades                       (3–6 concrete ideas that go beyond the brief)
 ## Risks & unknowns                   (top 3–5)
 ## Questions for the PM               (max 3; only if blocking)
-## Where my team would be strongest   (which parts we should own; which go to subagents)
+## Where my team would be strongest   (which parts we should own)
+## My proposed subagent roles        (for my own subagents only, within the cap; one line each + why)
 ```
 
 **Round 2: `.colab/debate/2-<you>.md`**
@@ -355,7 +344,8 @@ Append only. Newest at the bottom. Format: `### M<n> · <from> → <to> · <task
 ## Bloat / cut list
 ## Risks they missed
 ## Disagreements           (numbered, each with my proposed resolution)
-## Proposed split of work  (who owns which areas/files, which subagent does what, and why)
+## Their subagent roles    (too vague? overlapping? missing something?)
+## Proposed split of work  (who owns which areas/files, and why)
 ```
 
 **`.colab/PLAN.md`**
@@ -365,6 +355,24 @@ Append only. Newest at the bottom. Format: `### M<n> · <from> → <to> · <task
 ## Goal (plain English, 3 lines)
 ## In scope / Out of scope
 ## Decisions                (D1, D2… each one line + why; the AAA upgrades kept)
+## Team
+- Claude (Opus): <role on this project>
+- Gemini (Neon): <role on this project>
+
+**Role card** (one per subagent; no complete card = may not be started)
+| Field | |
+|---|---|
+| Name / model | e.g. "Claude-<name>" / Sonnet |
+| Purpose | one line |
+| Used for | the kinds of jobs it takes |
+| May edit | folders/file patterns, or "nothing" |
+| May read | folders/file patterns |
+| Must | 2–5 concrete rules |
+| Must not | 2–5 concrete rules |
+| Reports back | exact contents of its report |
+| Covers tasks | T-IDs |
+| Agreed by | Claude + Gemini (message M#) |
+
 ## Milestones               (M1 → M3, each a demo the PM can see)
 ## Tasks
 | ID | Task | Team · who (orchestrator/subagent) | Claimed files/folders | Depends on | Effort | Done when (testable) | Reviewer |
@@ -375,10 +383,10 @@ Append only. Newest at the bottom. Format: `### M<n> · <from> → <to> · <task
 
 **Subagent brief** (the orchestrator fills this in for every spawn; there's no spawn without one)
 ```markdown
-SUBAGENT: Claude-Builder (Sonnet) | Claude-Scout (Haiku) | Gemini-Tester (Hydrogen)
+SUBAGENT: <name from its role card> (<model>), role card in PLAN → Team
 TASK: T<n> – <one-line goal>
 CONTEXT: <2–5 lines: what exists, which PLAN decisions apply (D#)>
-YOU MAY EDIT: <exact files/folders, or "nothing (read-only)">
+YOU MAY EDIT: <exact files/folders, no wider than the role card, or "nothing (read-only)">
 YOU MAY READ: <files/folders>
 DO NOT: touch shared files, add dependencies, change interfaces not listed, edit .colab/*, talk to the other team
 DONE WHEN: <testable criteria, copied from PLAN>
