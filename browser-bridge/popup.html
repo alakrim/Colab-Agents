@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Agent Company OS Bridge</title>
+    <style>
+      body { font-family: Inter, system-ui, sans-serif; width: 320px; margin: 0; padding: 14px; background: #111318; color: #eceef2; font-size: 12px; }
+      h1 { font-size: 14px; margin: 0 0 8px; font-weight: 600; }
+      label { display: block; margin: 8px 0 4px; color: #9aa2b1; }
+      input, select, button { width: 100%; box-sizing: border-box; padding: 7px 9px; border-radius: 6px; border: 1px solid #262b36; background: #181c23; color: #eceef2; font-size: 12px; }
+      button { margin-top: 8px; background: #2563eb; border-color: #2563eb; font-weight: 500; cursor: pointer; }
+      button:hover { opacity: 0.92; }
+      .status { padding: 6px 8px; border-radius: 6px; background: #181c23; border: 1px solid #262b36; margin-bottom: 10px; }
+      .ok { color: #34d399; }
+      .off { color: #f59e0b; }
+    </style>
+  </head>
+  <body>
+    <h1>Agent Company OS Bridge</h1>
+    <div id="status" class="status">Checking connection…</div>
+    <label>Pairing Token (from Handoff Queue)</label>
+    <input id="token" placeholder="acos-..." />
+    <button id="connectBtn">Connect to Local Server</button>
+    <label>Bind Current Tab to Agent</label>
+    <select id="agentSelect"><option value="">Load agents from server…</option></select>
+    <button id="bindBtn">Bind Active Claude / Gemini Tab</button>
+    <script src="popup.js"></script>
+  </body>
+</html>
