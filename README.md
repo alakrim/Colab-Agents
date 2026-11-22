@@ -4,10 +4,9 @@ A self-hosted multi-agent collaboration platform where different AI subscription
 
 Zero Claude Code CLI. Zero Gemini CLI. Zero model API keys required. Zero mocked agent responses.
 
-> **Just want the lightweight version?** Attach [`COLLAB.md`](./COLLAB.md) in Claude Code on any new repo, and Claude files it in the repo. It's a
-> single rulebook that has Claude (Claude Code) and Gemini (Antigravity or the Gemini app) run a blind brainstorm,
-> a 3-round debate and a shared plan, then claim tasks and files and hand work off through `.colab/` files, all
-> without the server, browser extension or API keys. Start prompts are at the top of the file.
+> **Just want the lightweight version?** Attach [`COLLAB.md`](./COLLAB.md) in Claude Code on any new repo and Claude
+> files it there. It sets up a blind brainstorm and a 3-round debate between Claude and Gemini (with a shortcut-research
+> step), then a shared plan, then file claims so they never collide. No server, browser extension or API keys.
 
 ---
 
